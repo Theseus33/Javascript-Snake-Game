@@ -38,14 +38,16 @@ let d;
 
 document.addEventListener("keydown", direction);
 
+//makes sure snake cant go opposite direction of its path
 function direction(event) {
-  if (event.keyCode == 37) {
+  let key = event.keyCode;
+  if (key == 37 && d != "RIGHT") {
     d = "LEFT";
-  } else if (event.keyCode == 38) {
+  } else if (key == 38 && d != "DOWN") {
     d = "UP";
-  } else if (event.keyCode == 39) {
+  } else if (key == 39 && d != "LEFT") {
     d = "RIGHT";
-  } else if (event.keyCode == 40) {
+  } else if (key == 40 && d != "UP") {
     d = "DOWN";
   }
 }
@@ -68,8 +70,53 @@ function draw() {
 
   ctx.drawImage(foodImg, food.x, food.y);
 
-  //Score
+  //for movement we are taking off the tail and adding to the head
+  //old head position
+  let snakeX = snake[0].x;
+  let snakeY = snake[0].y;
 
+  //food eating condition adds to scsore if snake head = food location
+  if (snakeX == food.x && snakeY == food.y) {
+    score++;
+    // respawns the food
+    food = {
+      x: Math.floor(Math.random() * 17 + 1) * box,
+      y: Math.floor(Math.random() * 15 + 3) * box
+    };
+    //we dont remove the tail
+  } else {
+    //remove the tail
+    snake.pop();
+  }
+
+  //add new head
+
+  let newHead = {
+    x: snakeX,
+    y: snakeY
+  };
+
+  //game end rules
+
+  if (
+    snakeX < box ||
+    snakeX > 17 * box ||
+    snakeY < 3 * box ||
+    snakeY > 17 * box ||
+    collision(newHead, snake)
+  ) {
+    clearInterval(game);
+  }
+
+  //check direction pressed
+  if (d == "LEFT") snakeX -= box;
+  if (d == "UP") snakeY -= box;
+  if (d == "RIGHT") snakeX += box;
+  if (d == "DOWN") snakeY += box;
+
+  snake.unshift(newHead);
+
+  //Score
   ctx.fillStyle = "white";
   ctx.font = "45px Changa one";
   ctx.fillText(score, 2 * box, 1.6 * box);
