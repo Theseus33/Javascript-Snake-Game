@@ -14,9 +14,26 @@ ground.src = "img/ground.png";
 const foodImg = new Image();
 foodImg.src = "img/food.png";
 
+//load audio files
+
+let dead = new Audio();
+let eat = new Audio();
+let up = new Audio();
+let right = new Audio();
+let left = new Audio();
+let down = new Audio();
+
+dead.src = "audio/dead.mp3";
+eat.src = "audio/eat.mp3";
+up.src = "audio/up.mp3";
+right.src = "audio/right.mp3";
+left.src = "audio/left.mp3";
+down.src = "audio/down.mp3";
+
 //create the snake as an array starting with the head of the snake
 
 let snake = [];
+
 snake[0] = {
   x: 9 * box,
   y: 10 * box
@@ -32,22 +49,27 @@ let food = {
 //score variable
 
 let score = 0;
+
 //snake controls
 
 let d;
 
 document.addEventListener("keydown", direction);
 
-//makes sure snake cant go opposite direction of its path
+//makes sure snake cant go opposite direction of its path and plays associated sound
 function direction(event) {
   let key = event.keyCode;
   if (key == 37 && d != "RIGHT") {
+    left.play();
     d = "LEFT";
   } else if (key == 38 && d != "DOWN") {
+    up.play();
     d = "UP";
   } else if (key == 39 && d != "LEFT") {
+    right.play();
     d = "RIGHT";
   } else if (key == 40 && d != "UP") {
+    down.play();
     d = "DOWN";
   }
 }
@@ -74,8 +96,8 @@ function draw() {
 
     //draw a stroke
 
-    ctx.fillStyle = "red";
-    ctx.fillRect(snake[i].x, snake[i].y, box, box);
+    ctx.strokeStyle = "red";
+    ctx.strokeRect(snake[i].x, snake[i].y, box, box);
   }
   //draw the food to canvas
 
@@ -86,9 +108,16 @@ function draw() {
   let snakeX = snake[0].x;
   let snakeY = snake[0].y;
 
+  //check direction pressed
+  if (d == "LEFT") snakeX -= box;
+  if (d == "UP") snakeY -= box;
+  if (d == "RIGHT") snakeX += box;
+  if (d == "DOWN") snakeY += box;
+
   //food eating condition adds to scsore if snake head = food location
   if (snakeX == food.x && snakeY == food.y) {
     score++;
+    eat.play();
     // respawns the food
     food = {
       x: Math.floor(Math.random() * 17 + 1) * box,
@@ -117,13 +146,8 @@ function draw() {
     collision(newHead, snake)
   ) {
     clearInterval(game);
+    dead.play();
   }
-
-  //check direction pressed
-  if (d == "LEFT") snakeX -= box;
-  if (d == "UP") snakeY -= box;
-  if (d == "RIGHT") snakeX += box;
-  if (d == "DOWN") snakeY += box;
 
   snake.unshift(newHead);
 
